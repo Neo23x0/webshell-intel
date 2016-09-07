@@ -29,10 +29,10 @@ const NCPU = 1
 var filenames []string
 
 //URL filter function definition
-type filterFunc func(string, Crawler) bool
+type filterFunc func(string, *Crawler) bool
 
 //Check function definition
-type checkFunc func(string, Crawler) bool
+type checkFunc func(string, *Crawler) bool
 
 //Our crawler structure definition
 type Crawler struct {
@@ -175,7 +175,7 @@ func (crawler *Crawler) stop() {
 func (crawler *Crawler) filter(url string) {
 	temp := false
 	for _, fn := range crawler.filters {
-		temp = fn(url, *crawler)
+		temp = fn(url, crawler)
 		if temp != true {
 			return
 		}
@@ -186,7 +186,7 @@ func (crawler *Crawler) filter(url string) {
 //given a URL, the method will apply all the checks on that URL
 func (crawler *Crawler) check(url string) {
 	for _, ck := range crawler.checks {
-		ck(url, *crawler)
+		ck(url, crawler)
 	}
 }
 
@@ -286,12 +286,12 @@ func main() {
 
 	//add our only filter which makes sure that we are only
 	//crawling internal URLs.
-	c.addFilter(func(Url string, crawler Crawler) bool {
+	c.addFilter(func(Url string, crawler *Crawler) bool {
 		return strings.Contains(Url, u.Host)
 	}).start()
 
 	//add our first check function
-	c.addCheck(func(Url string, crawler Crawler) bool {
+	c.addCheck(func(Url string, crawler *Crawler) bool {
 		for _, f := range filenames {
 			checkUrl := fmt.Sprintf("%s%s", Url, f)
 			crawler.checkUrls <- checkUrl
